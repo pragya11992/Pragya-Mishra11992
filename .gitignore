@@ -1,0 +1,14 @@
+/target/
+.project
+.classpath
+com.com.ydv.domain.iml
+.idea
+.settings
+test-output/*
+.idea/*
+.idea/*
+surefire
+ydvautomation.log
+allure-report
+allure-results
+extent-reports

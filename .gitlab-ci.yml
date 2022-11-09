@@ -1,0 +1,104 @@
+image: public.ecr.aws/docker/library/maven:3.8.4-jdk-8
+
+stages:
+  - regression-testing
+  - sanity-testing
+  - smoke-testing
+  - rtpe-testing
+  - rtpe-integration-testing
+  - backward-compatibility-testing
+
+
+Regression-offers-qa-stg02-PimConnector-part1:
+
+  stage: regression-testing
+
+  script:
+    - pwd
+    - mvn clean test -DFILE_NAME=offers_RegressionPimConnector.xml -DENV_NAME=qaEnvPimConnector -DSTAGE=internal
+  artifacts:
+    when: always
+    paths:
+      - target/surefire-reports/**
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+
+  after_script:
+    - pwd
+    - mv target/surefire-reports/ $(pwd)/target/surefire-reports-${CI_JOB_ID}
+    - ls target/surefire-reports-${CI_JOB_ID}/
+    - apt update && apt -y install python3 python3-pip
+    - pip3 install boto3==1.16.43
+    - python3 publishresult.py
+    - echo "mvn clean test -DFILE_NAME=offers_RegressionPimConnector.xml -DENV_NAME=qaEnvPimConnector -DSTAGE=internal"
+    - echo "View result https://febric-integrationtest-reports.s3.amazonaws.com/target/surefire-reports-${CI_JOB_ID}/emailable-report.html"
+
+  when: manual
+
+Regression-offers-qa-stg02-PimConnector-part2:
+
+  stage: regression-testing
+
+  script:
+    - pwd
+    - mvn clean test -DFILE_NAME=offers_RegressionPimConnector2.xml -DENV_NAME=qaEnvPimConnector -DSTAGE=internal
+  artifacts:
+    when: always
+    paths:
+      - target/surefire-reports/**
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+
+  after_script:
+    - pwd
+    - mv target/surefire-reports/ $(pwd)/target/surefire-reports-${CI_JOB_ID}
+    - ls target/surefire-reports-${CI_JOB_ID}/
+    - apt update && apt -y install python3 python3-pip
+    - pip3 install boto3==1.16.43
+    - python3 publishresult.py
+    - echo "mvn clean test -DFILE_NAME=offers_RegressionPimConnector2.xml -DENV_NAME=qaEnvPimConnector -DSTAGE=internal"
+    - echo "View result https://febric-integrationtest-reports.s3.amazonaws.com/target/surefire-reports-${CI_JOB_ID}/emailable-report.html"
+
+  when: manual
+
+
+Sanity-offers-Sandbox-pimconnector:
+
+  stage: sanity-testing
+
+  script:
+    - pwd
+    - mvn clean test -DFILE_NAME=offers_SanityTestpimconnector.xml -DENV_NAME=demoUATPimConEnv -DSTAGE=sandbox
+    - ls target/surefire-reports/
+
+  artifacts:
+    paths:
+      - target/surefire-reports/**
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+  # allow_failure: false
+
+  after_script:
+    - pwd
+    - mv target/surefire-reports/ $(pwd)/target/surefire-reports-${CI_JOB_ID}
+    - ls target/surefire-reports-${CI_JOB_ID}/
+    - apt update && apt -y install python3 python3-pip
+    - pip3 install boto3==1.16.43
+    - python3 publishresult.py
+    - echo "mvn clean test -DFILE_NAME=offers_SanityTestpimconnector.xml -DENV_NAME=demoUATPimConEnv -DSTAGE=sandbox"
+    - echo "View result https://febric-integrationtest-reports.s3.amazonaws.com/target/surefire-reports-${CI_JOB_ID}/emailable-report.html"
+
+  when: manual
+
+
+rtpe-integration-testing-stg02:
+
+ stage: rtpe-integration-testing
+ trigger:
+   project: fabric2/offers/fabric-service-price-engine-qa-automation
+   branch: main
+ when: manual
+
